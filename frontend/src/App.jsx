@@ -1,34 +1,49 @@
 import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
-import "./App.css";
+import Calendar from "./components/Calendar";
 
 function App() {
-  const [count, setCount] = useState(100);
+  const [count, setCount] = useState(0);
+  const [text, setText] = useState();
+
+  const [ym, setYm] = useState({ year: 2025, month: 12 });
+  const handlePrevMonth = () => {
+    setYm((prev) => {
+      if (prev.month === 1) {
+        // 1月の前 → 前年の12月
+        return { year: prev.year - 1, month: 12 };
+      } else {
+        return { year: prev.year, month: prev.month - 1 };
+      }
+    });
+  };
+  const handleNextMonth = () => {
+    setYm((prev) => {
+      if (prev.month === 12) {
+        // 12月の次 → 翌年の1月
+        return { year: prev.year + 1, month: 1 };
+      } else {
+        return { year: prev.year, month: prev.month + 1 };
+      }
+    });
+  };
 
   return (
     <>
       <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+        <h1>ぽちっとカレンダー(仮)</h1>
+
+        {/* カレンダー */}
+        <h2>カレンダー</h2>
+        {/* 月移動ボタン */}
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <button onClick={handlePrevMonth}>&lt;</button>
+          <span>
+            {ym.year}年 {ym.month}月
+          </span>
+          <button onClick={handleNextMonth}>&gt;</button>
+        </div>
+        <Calendar year={ym.year} month={ym.month} />
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-          <h1>こんにちは</h1>
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
     </>
   );
 }
