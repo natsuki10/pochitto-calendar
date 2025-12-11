@@ -1,18 +1,21 @@
-function DayCell({ day, bgColor }) {
+// src/components/DayCell.jsx
+function DayCell({ day, bgColor, isSelected, onClick }) {
+  const style = {
+    width: "60px",
+    height: "60px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: "4px",
+    boxSizing: "border-box",
+    backgroundColor: bgColor || "white",
+    border: isSelected ? "3px solid #333" : "1px solid #ccc",
+    cursor: day ? "pointer" : "default",
+  };
+
   return (
-    <div
-      style={{
-        border: "1px solid #ccc",
-        width: "60px",
-        height: "60px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        borderRadius: "4px",
-        backgroundColor: bgColor || "white", // 指定なければ白
-      }}
-    >
-      {day}
+    <div style={style} onClick={onClick}>
+      {day ?? ""}
     </div>
   );
 }

@@ -27,6 +27,9 @@ function App() {
     });
   };
 
+  //選択されている日
+  const [selectedDate, setSelectedDate] = useState(null);
+
   return (
     <>
       <div>
@@ -42,7 +45,12 @@ function App() {
           </span>
           <button onClick={handleNextMonth}>&gt;</button>
         </div>
-        <Calendar year={ym.year} month={ym.month} />
+        <Calendar
+          year={ym.year}
+          month={ym.month}
+          selectedDate={selectedDate}
+          setSelectedDate={setSelectedDate}
+        />
       </div>
     </>
   );
