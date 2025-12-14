@@ -31,8 +31,15 @@ body {
   user-select: none;
   -webkit-user-select: none; /* iOS */
   -webkit-tap-highlight-color: transparent; /* iOS 青ハイライト防止 */
-
 }
+
+input,
+textarea,
+select {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
 
 h1 {
   font-size: 3.2em;
