@@ -1,4 +1,4 @@
-// src/components/DayCell.jsx
+// src/components/Calendar/DayCell.jsx
 function DayCell({ day, bgColor, isSelected, onClick }) {
   const style = {
     width: "60px",

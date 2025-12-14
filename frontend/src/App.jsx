@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Calendar from "./components/Calendar";
+import Calendar from "./components/Calendar/Calendar";
 
 function App() {
   const [count, setCount] = useState(0);

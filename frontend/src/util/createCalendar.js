@@ -20,10 +20,10 @@ export function createCalendar(year, month) {
     for (let j = 0; j < 7; j++) {
       if (i === 0 && j < startDay) {
         // 1週目の月初前は空白
-        week.push({ day: "", bgColor: "#fff" });
+        week.push({ day: null, bgColor: "#fff" });
       } else if (currentDay > totalDays) {
         // 月末を過ぎたら空白
-        week.push({ day: "", bgColor: "#fff" });
+        week.push({ day: null, bgColor: "#fff" });
       } else {
         const isSunday = j === 0;
         const isSaturday = j === 6;

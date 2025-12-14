@@ -1,6 +1,6 @@
-// src/components/Calendar.jsx
+// src/components/Calendar/Calendar.jsx
 import DayCell from "./DayCell";
-import { createCalendar } from "../util/createCalendar";
+import { createCalendar } from "../../util/createCalendar";
 
 function Calendar({ year, month, selectedDate, setSelectedDate }) {
   const calendar = createCalendar(year, month);
