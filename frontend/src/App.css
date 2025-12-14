@@ -1,26 +1,21 @@
 /* src/App.css */
+
+/* 全体の背景・高さだけ持つ（レイアウトはBootstrapに寄せる） */
 .app {
   min-height: 100vh;
 }
 
-.app__container {
-  width: 100%;
-  max-width: 420px;   /* モバイルファーストの幅*/
-  margin: 0 auto;     
-  padding: 24px 16px; /* スマホ前提の左右余白 */
-}
-
-/* タイトル */
+/* タイトルだけアプリっぽく整える */
 .app__title {
   margin: 0 0 16px;
-  font-size: 32px;
+  font-size: 28px;
   line-height: 1.2;
 }
 
-/* 画面が広い時だけ少し余白を増やす（モバイルファーストの上書き） */
+/* タブレット以上で少し大きく */
 @media (min-width: 768px) {
-  .app__container {
-    max-width: 560px;
-    padding: 32px 24px;
+  .app__title {
+    font-size: 36px;
+    margin-bottom: 20px;
   }
 }

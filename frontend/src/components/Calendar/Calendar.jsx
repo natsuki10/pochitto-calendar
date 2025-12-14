@@ -14,7 +14,7 @@ function Calendar({ year, month, selectedDate, setSelectedDate }) {
           <div
             key={label}
             style={{
-              width: "60px",
+              flex: 1,
               height: "30px",
               display: "flex",
               alignItems: "center",

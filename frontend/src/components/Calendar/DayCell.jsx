@@ -1,8 +1,8 @@
 // src/components/Calendar/DayCell.jsx
 function DayCell({ day, bgColor, isSelected, onClick }) {
   const style = {
-    width: "60px",
-    height: "60px",
+    flex: 1,
+    aspectRatio: "1 / 1", //正方形にする
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
