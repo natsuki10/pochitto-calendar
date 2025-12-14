@@ -11,10 +11,26 @@ function DayCell({ day, bgColor, isSelected, onClick }) {
     backgroundColor: bgColor || "white",
     border: isSelected ? "3px solid #333" : "1px solid #ccc",
     cursor: day ? "pointer" : "default",
+    transition: "transform 0.1s ease, box-shadow 0.1s ease",
+    userSelect: "none", //カーソルを表示させない
+    WebkitUserSelect: "none", // iOS対策
+    WebkitTapHighlightColor: "transparent", //iOS対策
   };
 
   return (
-    <div style={style} onClick={onClick}>
+    <div
+      style={style}
+      onClick={day ? onClick : undefined}
+      onMouseDown={(e) => {
+        if (day) e.currentTarget.style.transform = "scale(0.95)";
+      }}
+      onMouseUp={(e) => {
+        if (day) e.currentTarget.style.transform = "scale(1)";
+      }}
+      onMouseLeave={(e) => {
+        if (day) e.currentTarget.style.transform = "scale(1)";
+      }}
+    >
       {day ?? ""}
     </div>
   );

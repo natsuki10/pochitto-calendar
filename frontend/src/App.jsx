@@ -43,13 +43,30 @@ function App() {
               <h2>カレンダー</h2>
               {/* 月移動ボタン */}
               <div
-                style={{ display: "flex", alignItems: "center", gap: "8px" }}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  marginBottom: "8px",
+                }}
               >
-                <button onClick={handlePrevMonth}>&lt;</button>
+                <button
+                  className="btn btn-outline-secondary btn-sm"
+                  onClick={handlePrevMonth}
+                >
+                  &lt;
+                </button>
+
                 <span>
                   {ym.year}年 {ym.month}月
                 </span>
-                <button onClick={handleNextMonth}>&gt;</button>
+
+                <button
+                  className="btn btn-outline-secondary btn-sm"
+                  onClick={handleNextMonth}
+                >
+                  &gt;
+                </button>
               </div>
               <Calendar
                 year={ym.year}
