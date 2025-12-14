@@ -1,4 +1,5 @@
 import { useState } from "react";
+import "./App.css";
 import Calendar from "./components/Calendar/Calendar";
 
 function App() {
@@ -32,25 +33,27 @@ function App() {
 
   return (
     <>
-      <div>
-        <h1>ぽちっとカレンダー(仮)</h1>
+      <div className="app">
+        <div className="app__container">
+          <h1 className="app__title">ぽちっとカレンダー(仮)</h1>
 
-        {/* カレンダー */}
-        <h2>カレンダー</h2>
-        {/* 月移動ボタン */}
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <button onClick={handlePrevMonth}>&lt;</button>
-          <span>
-            {ym.year}年 {ym.month}月
-          </span>
-          <button onClick={handleNextMonth}>&gt;</button>
+          {/* カレンダー */}
+          <h2>カレンダー</h2>
+          {/* 月移動ボタン */}
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <button onClick={handlePrevMonth}>&lt;</button>
+            <span>
+              {ym.year}年 {ym.month}月
+            </span>
+            <button onClick={handleNextMonth}>&gt;</button>
+          </div>
+          <Calendar
+            year={ym.year}
+            month={ym.month}
+            selectedDate={selectedDate}
+            setSelectedDate={setSelectedDate}
+          />
         </div>
-        <Calendar
-          year={ym.year}
-          month={ym.month}
-          selectedDate={selectedDate}
-          setSelectedDate={setSelectedDate}
-        />
       </div>
     </>
   );
