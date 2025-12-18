@@ -1,11 +1,8 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import "./App.css";
 import Calendar from "./components/Calendar/Calendar";
 
 function App() {
-  const [count, setCount] = useState(0);
-  const [text, setText] = useState();
-
   const [ym, setYm] = useState({ year: 2025, month: 12 });
   const handlePrevMonth = () => {
     setYm((prev) => {
@@ -30,6 +27,60 @@ function App() {
 
   //選択されている日
   const [selectedDate, setSelectedDate] = useState(null);
+
+  // タグ名（後で変更できるように別管理）
+  const [tagNames, setTagNames] = useState({
+    tag1: "タグ1",
+    tag2: "タグ2",
+  });
+
+  // 日付ごとの記録
+  const [records, setRecords] = useState({});
+
+  // 初期値（存在しない日付のデフォルト）
+  const defaultRecord = useMemo(
+    () => ({
+      effort: 0,
+      tags: { tag1: false, tag2: false },
+    }),
+    []
+  );
+
+  // 選択日のrecord（ない場合はデフォルト）
+  const selectedRecord = useMemo(() => {
+    if (!selectedDate) return null;
+    return records[selectedDate] ?? defaultRecord;
+  }, [selectedDate, records, defaultRecord]);
+
+  // 記録を安全に更新する共通関数（その日付だけ更新）
+  const updateRecord = (dateKey, updater) => {
+    setRecords((prev) => {
+      const current = prev[dateKey] ?? defaultRecord;
+      const next = updater(current);
+      return { ...prev, [dateKey]: next };
+    });
+  };
+
+  // 頑張り度を更新
+  const setEffortForSelectedDate = (effort) => {
+    if (!selectedDate) return;
+    updateRecord(selectedDate, (current) => ({
+      ...current,
+      effort,
+    }));
+  };
+
+  // タグをON/OFF（チェック式）
+  const toggleTagForSelectedDate = (tagKey) => {
+    if (!selectedDate) return;
+    updateRecord(selectedDate, (current) => ({
+      ...current,
+      tags: {
+        ...current.tags,
+        [tagKey]: !current.tags[tagKey],
+      },
+    }));
+  };
 
   return (
     <>
