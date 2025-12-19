@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import "./App.css";
 import Calendar from "./components/Calendar/Calendar";
+import EditPanel from "./components/EditPanel/EditPanel";
 
 function App() {
   const [ym, setYm] = useState({ year: 2025, month: 12 });
@@ -124,6 +125,15 @@ function App() {
                 month={ym.month}
                 selectedDate={selectedDate}
                 setSelectedDate={setSelectedDate}
+              />
+
+              <EditPanel
+                selectedDate={selectedDate}
+                selectedRecord={selectedRecord}
+                tagNames={tagNames}
+                onClose={() => setSelectedDate(null)}
+                onSetEffort={setEffortForSelectedDate}
+                onToggleTag={toggleTagForSelectedDate}
               />
             </div>
           </div>

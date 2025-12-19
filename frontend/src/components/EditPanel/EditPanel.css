@@ -1,0 +1,46 @@
+.editPanel {
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid #eee;
+  border-radius: 12px;
+}
+
+.editPanel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.editPanel__date {
+  font-weight: 600;
+}
+
+.editPanel__section {
+  margin-top: 10px;
+}
+
+.editPanel__label {
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.editPanel__row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.editPanel__hint {
+  margin-top: 8px;
+  font-size: 12px;
+  opacity: 0.75;
+}
+
+.editPanel__checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
