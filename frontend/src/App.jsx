@@ -1,9 +1,15 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import "./App.css";
 import Calendar from "./components/Calendar/Calendar";
 import EditPanel from "./components/EditPanel/EditPanel";
 
 function App() {
+  //localStorage保存
+  const STORAGE_KEYS = {
+    records: "pochitto-records",
+    tagNames: "pochitto-tagNames",
+  };
+
   const [ym, setYm] = useState({ year: 2025, month: 12 });
   const handlePrevMonth = () => {
     setYm((prev) => {
@@ -29,14 +35,51 @@ function App() {
   //選択されている日
   const [selectedDate, setSelectedDate] = useState(null);
 
-  // タグ名（後で変更できるように別管理）
-  const [tagNames, setTagNames] = useState({
-    tag1: "タグ1",
-    tag2: "タグ2",
+  const [tagNames, setTagNames] = useState(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEYS.tagNames);
+      if (!raw) return { tag1: "タグ1", tag2: "タグ2" };
+
+      const parsed = JSON.parse(raw);
+      return {
+        tag1: typeof parsed?.tag1 === "string" ? parsed.tag1 : "タグ1",
+        tag2: typeof parsed?.tag2 === "string" ? parsed.tag2 : "タグ2",
+      };
+    } catch {
+      return { tag1: "タグ1", tag2: "タグ2" };
+    }
   });
 
-  // 日付ごとの記録
-  const [records, setRecords] = useState({});
+  const [records, setRecords] = useState(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEYS.records);
+      if (!raw) return {};
+
+      const parsed = JSON.parse(raw);
+
+      if (parsed && typeof parsed === "object") return parsed;
+
+      return {};
+    } catch {
+      return {};
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEYS.records, JSON.stringify(records));
+    } catch {
+      // 保存失敗（容量など）してもアプリを落とさない
+    }
+  }, [records]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEYS.tagNames, JSON.stringify(tagNames));
+    } catch {
+      // 保存失敗してもアプリを落とさない
+    }
+  }, [tagNames]);
 
   // 初期値（存在しない日付のデフォルト）
   const defaultRecord = useMemo(
