@@ -13,6 +13,12 @@ function Calendar({ year, month, selectedDate, setSelectedDate, records }) {
     4: "#4aa8ff",
   };
 
+  const today = new Date();
+  const todayKey = `${today.getFullYear()}-${String(
+    today.getMonth() + 1
+  ).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+  const TODAY_BG = "#ffc6b3ff"; // 今日の色
+
   return (
     <div>
       {/* 曜日ヘッダー */}
@@ -45,9 +51,17 @@ function Calendar({ year, month, selectedDate, setSelectedDate, records }) {
 
             const effort =
               hasDay && dateKey ? records?.[dateKey]?.effort ?? 0 : 0;
-            const bgColor = hasDay
-              ? effortColors[effort] ?? effortColors[0]
-              : "transparent";
+
+            let bgColor = "transparent";
+            if (hasDay) {
+              if (effort > 0) {
+                bgColor = effortColors[effort] ?? effortColors[0];
+              } else if (dateKey === todayKey) {
+                bgColor = TODAY_BG;
+              } else {
+                bgColor = "white";
+              }
+            }
 
             return (
               <DayCell
