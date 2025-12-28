@@ -168,6 +168,7 @@ function App() {
                 month={ym.month}
                 selectedDate={selectedDate}
                 setSelectedDate={setSelectedDate}
+                records={records}
               />
 
               <EditPanel
