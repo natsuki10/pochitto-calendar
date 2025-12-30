@@ -44,3 +44,22 @@
   gap: 8px;
   margin-top: 8px;
 }
+
+.editPanel__tagNameRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.editPanel__tagKey {
+  width: 48px;
+  font-weight: 600;
+}
+
+.editPanel__check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}

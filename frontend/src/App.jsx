@@ -175,6 +175,7 @@ function App() {
                 selectedDate={selectedDate}
                 selectedRecord={selectedRecord}
                 tagNames={tagNames}
+                setTagNames={setTagNames}
                 onClose={() => setSelectedDate(null)}
                 onSetEffort={setEffortForSelectedDate}
                 onToggleTag={toggleTagForSelectedDate}
