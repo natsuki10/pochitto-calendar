@@ -91,33 +91,6 @@ export default function EditPanel({
           <span>{tagNames.tag2}</span>
         </label>
       </div>
-
-      {/* タグ名編集 */}
-      <div className="editPanel__section">
-        <div className="editPanel__label">タグ名（変更）</div>
-
-        <div className="editPanel__tagNameRow">
-          <span className="editPanel__tagKey">タグ1</span>
-          <input
-            className="form-control form-control-sm"
-            value={tagNames.tag1}
-            onChange={(e) => handleChangeTagName("tag1", e.target.value)}
-            onBlur={(e) => handleBlurTagName("tag1", e.target.value)}
-          />
-        </div>
-
-        <div className="editPanel__tagNameRow">
-          <span className="editPanel__tagKey">タグ2</span>
-          <input
-            className="form-control form-control-sm"
-            value={tagNames.tag2}
-            onChange={(e) => handleChangeTagName("tag2", e.target.value)}
-            onBlur={(e) => handleBlurTagName("tag2", e.target.value)}
-          />
-        </div>
-
-        <div className="editPanel__help">※追加・削除は次のIssueで対応</div>
-      </div>
     </div>
   );
 }

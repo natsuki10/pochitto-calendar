@@ -1,0 +1,41 @@
+.tagModal__backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 1050;
+}
+
+.tagModal__dialog {
+  width: 100%;
+  max-width: 420px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  padding: 12px;
+}
+
+.tagModal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.tagModal__title {
+  font-weight: 700;
+}
+
+.tagModal__body {
+  padding: 4px 0;
+}
+
+.tagModal__footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
