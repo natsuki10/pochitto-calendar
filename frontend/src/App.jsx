@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import "./App.css";
 import Calendar from "./components/Calendar/Calendar";
 import EditPanel from "./components/EditPanel/EditPanel";
+import TagSettingsModal from "./components/TagSettingsModal/TagSettingsModal";
 
 function App() {
   //localStorage保存
@@ -125,6 +126,8 @@ function App() {
       },
     }));
   };
+  //タグ名設定
+  const [isTagSettingsOpen, setIsTagSettingsOpen] = useState(false);
 
   return (
     <>
@@ -132,8 +135,16 @@ function App() {
         <div className="container py-4 px-3">
           <div className="mx-auto" style={{ maxWidth: 420 }}>
             <div className="app__container">
-              <h1 className="app__title">ぽちっとカレンダー(仮)</h1>
+              <h1 className="app__title mb-0">ぽちっとカレンダー(仮)</h1>
 
+              {/**ボタン設定 */}
+              <button
+                type="button"
+                className="btn btn-outline-secondary btn-sm"
+                onClick={() => setIsTagSettingsOpen(true)}
+              >
+                タグ設定
+              </button>
               {/* カレンダー */}
               <h2>カレンダー</h2>
               {/* 月移動ボタン */}
@@ -175,9 +186,17 @@ function App() {
                 selectedDate={selectedDate}
                 selectedRecord={selectedRecord}
                 tagNames={tagNames}
+                setTagNames={setTagNames}
                 onClose={() => setSelectedDate(null)}
                 onSetEffort={setEffortForSelectedDate}
                 onToggleTag={toggleTagForSelectedDate}
+              />
+
+              <TagSettingsModal
+                isOpen={isTagSettingsOpen}
+                onClose={() => setIsTagSettingsOpen(false)}
+                tagNames={tagNames}
+                setTagNames={setTagNames}
               />
             </div>
           </div>

@@ -1,14 +1,36 @@
 import "./EditPanel.css";
 
+const DEFAULT_TAG_NAMES = {
+  tag1: "タグ1",
+  tag2: "タグ2",
+};
+
 export default function EditPanel({
   selectedDate,
   selectedRecord,
   tagNames,
+  setTagNames,
   onClose,
   onSetEffort,
   onToggleTag,
 }) {
   if (!selectedDate || !selectedRecord) return null;
+
+  const handleChangeTagName = (key, value) => {
+    const trimmed = value;
+    setTagNames((prev) => ({
+      ...prev,
+      [key]: trimmed,
+    }));
+  };
+  const handleBlurTagName = (key, value) => {
+    if (value.trim() === "") {
+      setTagNames((prev) => ({
+        ...prev,
+        [key]: DEFAULT_TAG_NAMES[key],
+      }));
+    }
+  };
 
   return (
     <div className="editPanel">
