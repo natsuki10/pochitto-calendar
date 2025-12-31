@@ -5,49 +5,50 @@ import EditPanel from "./components/EditPanel/EditPanel";
 import TagSettingsModal from "./components/TagSettingsModal/TagSettingsModal";
 
 function App() {
-  //localStorage保存
+  // localStorage保存
   const STORAGE_KEYS = {
-    records: "pochitto-records",
-    tagNames: "pochitto-tagNames",
+    records: "pochitto-records-v2",
+    tags: "pochitto-tags-v2",
   };
 
   const [ym, setYm] = useState({ year: 2025, month: 12 });
   const handlePrevMonth = () => {
     setYm((prev) => {
-      if (prev.month === 1) {
-        // 1月の前 → 前年の12月
-        return { year: prev.year - 1, month: 12 };
-      } else {
-        return { year: prev.year, month: prev.month - 1 };
-      }
+      if (prev.month === 1) return { year: prev.year - 1, month: 12 };
+      return { year: prev.year, month: prev.month - 1 };
     });
   };
   const handleNextMonth = () => {
     setYm((prev) => {
-      if (prev.month === 12) {
-        // 12月の次 → 翌年の1月
-        return { year: prev.year + 1, month: 1 };
-      } else {
-        return { year: prev.year, month: prev.month + 1 };
-      }
+      if (prev.month === 12) return { year: prev.year + 1, month: 1 };
+      return { year: prev.year, month: prev.month + 1 };
     });
   };
 
-  //選択されている日
+  // 選択されている日
   const [selectedDate, setSelectedDate] = useState(null);
 
-  const [tagNames, setTagNames] = useState(() => {
+  // タグ（動的）
+  const [tags, setTags] = useState(() => {
     try {
-      const raw = localStorage.getItem(STORAGE_KEYS.tagNames);
-      if (!raw) return { tag1: "タグ1", tag2: "タグ2" };
-
+      const raw = localStorage.getItem(STORAGE_KEYS.tags);
+      if (!raw) {
+        return [
+          { id: "t1", name: "タグ1" },
+          { id: "t2", name: "タグ2" },
+        ];
+      }
       const parsed = JSON.parse(raw);
-      return {
-        tag1: typeof parsed?.tag1 === "string" ? parsed.tag1 : "タグ1",
-        tag2: typeof parsed?.tag2 === "string" ? parsed.tag2 : "タグ2",
-      };
+      if (Array.isArray(parsed)) return parsed;
+      return [
+        { id: "t1", name: "タグ1" },
+        { id: "t2", name: "タグ2" },
+      ];
     } catch {
-      return { tag1: "タグ1", tag2: "タグ2" };
+      return [
+        { id: "t1", name: "タグ1" },
+        { id: "t2", name: "タグ2" },
+      ];
     }
   });
 
@@ -55,11 +56,8 @@ function App() {
     try {
       const raw = localStorage.getItem(STORAGE_KEYS.records);
       if (!raw) return {};
-
       const parsed = JSON.parse(raw);
-
       if (parsed && typeof parsed === "object") return parsed;
-
       return {};
     } catch {
       return {};
@@ -70,23 +68,23 @@ function App() {
     try {
       localStorage.setItem(STORAGE_KEYS.records, JSON.stringify(records));
     } catch {
-      // 保存失敗（容量など）してもアプリを落とさない
+      // 保存失敗してもアプリを落とさない
     }
   }, [records]);
 
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEYS.tagNames, JSON.stringify(tagNames));
+      localStorage.setItem(STORAGE_KEYS.tags, JSON.stringify(tags));
     } catch {
       // 保存失敗してもアプリを落とさない
     }
-  }, [tagNames]);
+  }, [tags]);
 
   // 初期値（存在しない日付のデフォルト）
   const defaultRecord = useMemo(
     () => ({
       effort: 0,
-      tags: { tag1: false, tag2: false },
+      tagIds: [],
     }),
     []
   );
@@ -97,7 +95,7 @@ function App() {
     return records[selectedDate] ?? defaultRecord;
   }, [selectedDate, records, defaultRecord]);
 
-  // 記録を安全に更新する共通関数（その日付だけ更新）
+  // 記録を安全に更新（その日付だけ更新）
   const updateRecord = (dateKey, updater) => {
     setRecords((prev) => {
       const current = prev[dateKey] ?? defaultRecord;
@@ -115,18 +113,61 @@ function App() {
     }));
   };
 
-  // タグをON/OFF（チェック式）
-  const toggleTagForSelectedDate = (tagKey) => {
+  // タグをON/OFF（tagIds配列）
+  const toggleTagForSelectedDate = (tagId) => {
     if (!selectedDate) return;
-    updateRecord(selectedDate, (current) => ({
-      ...current,
-      tags: {
-        ...current.tags,
-        [tagKey]: !current.tags[tagKey],
-      },
-    }));
+    updateRecord(selectedDate, (current) => {
+      const tagIds = Array.isArray(current.tagIds) ? current.tagIds : [];
+      const has = tagIds.includes(tagId);
+      return {
+        ...current,
+        tagIds: has ? tagIds.filter((id) => id !== tagId) : [...tagIds, tagId],
+      };
+    });
   };
-  //タグ名設定
+
+  // タグ削除：tagsから消す＋recordsからも除去
+  const deleteTag = (tagId) => {
+    setTags((prev) => prev.filter((t) => t.id !== tagId));
+    setRecords((prev) => {
+      const next = { ...prev };
+      Object.keys(next).forEach((dateKey) => {
+        const r = next[dateKey];
+        if (!r || !Array.isArray(r.tagIds)) return;
+        if (!r.tagIds.includes(tagId)) return;
+        next[dateKey] = { ...r, tagIds: r.tagIds.filter((id) => id !== tagId) };
+      });
+      return next;
+    });
+  };
+
+  // タグ名変更
+  const renameTag = (tagId, name) => {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    setTags((prev) =>
+      prev.map((t) => (t.id === tagId ? { ...t, name: trimmed } : t))
+    );
+  };
+
+  // タグ追加
+  const addTag = (name) => {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+
+    // 同名は追加しない
+    const exists = tags.some((t) => t.name === trimmed);
+    if (exists) return;
+
+    const id =
+      typeof crypto !== "undefined" && crypto.randomUUID
+        ? crypto.randomUUID()
+        : `t_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+
+    setTags((prev) => [...prev, { id, name: trimmed }]);
+  };
+
+  // タグ設定モーダル
   const [isTagSettingsOpen, setIsTagSettingsOpen] = useState(false);
 
   return (
@@ -137,7 +178,6 @@ function App() {
             <div className="app__container">
               <h1 className="app__title mb-0">ぽちっとカレンダー(仮)</h1>
 
-              {/**ボタン設定 */}
               <button
                 type="button"
                 className="btn btn-outline-secondary btn-sm"
@@ -145,9 +185,6 @@ function App() {
               >
                 タグ設定
               </button>
-              {/* カレンダー */}
-              <h2>カレンダー</h2>
-              {/* 月移動ボタン */}
               <div
                 style={{
                   display: "flex",
@@ -174,6 +211,7 @@ function App() {
                   &gt;
                 </button>
               </div>
+
               <Calendar
                 year={ym.year}
                 month={ym.month}
@@ -185,8 +223,7 @@ function App() {
               <EditPanel
                 selectedDate={selectedDate}
                 selectedRecord={selectedRecord}
-                tagNames={tagNames}
-                setTagNames={setTagNames}
+                tags={tags}
                 onClose={() => setSelectedDate(null)}
                 onSetEffort={setEffortForSelectedDate}
                 onToggleTag={toggleTagForSelectedDate}
@@ -195,8 +232,10 @@ function App() {
               <TagSettingsModal
                 isOpen={isTagSettingsOpen}
                 onClose={() => setIsTagSettingsOpen(false)}
-                tagNames={tagNames}
-                setTagNames={setTagNames}
+                tags={tags}
+                onAddTag={addTag}
+                onRenameTag={renameTag}
+                onDeleteTag={deleteTag}
               />
             </div>
           </div>

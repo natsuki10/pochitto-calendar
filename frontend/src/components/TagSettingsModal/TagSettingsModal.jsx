@@ -1,78 +1,81 @@
+import { useState } from "react";
 import "./TagSettingsModal.css";
-
-const DEFAULT_TAG_NAMES = {
-  tag1: "タグ1",
-  tag2: "タグ2",
-};
 
 export default function TagSettingsModal({
   isOpen,
   onClose,
-  tagNames,
-  setTagNames,
+  tags,
+  onAddTag,
+  onRenameTag,
+  onDeleteTag,
 }) {
+  const [newName, setNewName] = useState("");
+
   if (!isOpen) return null;
 
-  const handleChange = (key, value) => {
-    setTagNames((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
+  const handleAdd = () => {
+    onAddTag(newName);
+    setNewName("");
   };
 
-  const handleBlur = (key, value) => {
-    if (value.trim() === "") {
-      setTagNames((prev) => ({
-        ...prev,
-        [key]: DEFAULT_TAG_NAMES[key],
-      }));
-    }
+  const handleDelete = (tagId, tagName) => {
+    const ok = window.confirm(
+      `「${tagName}」を削除しますか？\nこのタグは全ての日付の記録からも削除されます。`
+    );
+    if (!ok) return;
+    onDeleteTag(tagId);
   };
 
   return (
-    <div className="tagModal__backdrop" onClick={onClose} role="presentation">
-      <div
-        className="tagModal__dialog"
-        onClick={(e) => e.stopPropagation()}
-        role="dialog"
-        aria-modal="true"
-        aria-label="タグ設定"
-      >
-        <div className="tagModal__header">
-          <div className="tagModal__title">タグ設定</div>
+    <div className="tagSettingsModal">
+      <div className="tagSettingsModal__backdrop" onClick={onClose} />
+      <div className="tagSettingsModal__content">
+        <div className="tagSettingsModal__header">
+          <div className="tagSettingsModal__title">タグ設定</div>
           <button
-            type="button"
             className="btn btn-outline-secondary btn-sm"
             onClick={onClose}
-            aria-label="閉じる"
           >
-            ×
+            閉じる
           </button>
         </div>
 
-        <div className="tagModal__body">
-          <div className="mb-2">
-            <label className="form-label">タグ1</label>
+        <div className="tagSettingsModal__body">
+          <div className="tagSettingsModal__sectionTitle">タグ名の変更</div>
+
+          {tags.map((t) => (
+            <div key={t.id} className="tagSettingsModal__row">
+              <input
+                className="form-control form-control-sm"
+                value={t.name}
+                onChange={(e) => onRenameTag(t.id, e.target.value)}
+              />
+              <button
+                className="btn btn-outline-danger btn-sm"
+                onClick={() => handleDelete(t.id, t.name)}
+              >
+                削除
+              </button>
+            </div>
+          ))}
+
+          <hr />
+
+          <div className="tagSettingsModal__sectionTitle">タグ追加</div>
+          <div className="tagSettingsModal__row">
             <input
               className="form-control form-control-sm"
-              value={tagNames.tag1}
-              onChange={(e) => handleChange("tag1", e.target.value)}
-              onBlur={(e) => handleBlur("tag1", e.target.value)}
+              placeholder="新しいタグ名"
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
             />
+            <button className="btn btn-primary btn-sm" onClick={handleAdd}>
+              追加
+            </button>
           </div>
 
-          <div className="mb-2">
-            <label className="form-label">タグ2</label>
-            <input
-              className="form-control form-control-sm"
-              value={tagNames.tag2}
-              onChange={(e) => handleChange("tag2", e.target.value)}
-              onBlur={(e) => handleBlur("tag2", e.target.value)}
-            />
-          </div>
-
-          <div className="text-muted" style={{ fontSize: 12 }}>
-            ※追加・削除は次のIssueで対応
+          <div className="text-muted" style={{ fontSize: 12, marginTop: 8 }}>
+            ※同名タグは追加できません（空欄も不可）
           </div>
         </div>
       </div>
