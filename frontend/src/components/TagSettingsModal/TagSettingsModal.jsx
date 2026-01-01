@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import "./TagSettingsModal.css";
 
 export default function TagSettingsModal({
@@ -15,6 +15,9 @@ export default function TagSettingsModal({
   // { [tagId]: string }
   const [draftNames, setDraftNames] = useState({});
 
+  // エラーメッセージ（同名など）
+  const [errorMessage, setErrorMessage] = useState("");
+
   // モーダルを開いたタイミングで、現在のタグ名を draft に同期
   useEffect(() => {
     if (!isOpen) return;
@@ -23,12 +26,34 @@ export default function TagSettingsModal({
       next[t.id] = t.name ?? "";
     });
     setDraftNames(next);
+    setErrorMessage("");
   }, [isOpen, tags]);
 
   if (!isOpen) return null;
 
+  // 同名チェック（前後空白無視、完全一致）
+  // selfId を渡した場合は自分自身を除外
+  const isDuplicateName = (name, selfId = null) => {
+    const target = name.trim();
+    if (!target) return false;
+
+    return tags.some((t) => {
+      if (selfId && t.id === selfId) return false;
+      return (t.name ?? "").trim() === target;
+    });
+  };
+
   const handleAdd = () => {
-    onAddTag(newName);
+    const trimmed = newName.trim();
+    if (!trimmed) return;
+
+    if (isDuplicateName(trimmed)) {
+      setErrorMessage("同名のタグ名があります");
+      return;
+    }
+
+    setErrorMessage("");
+    onAddTag(trimmed);
     setNewName("");
   };
 
@@ -37,6 +62,7 @@ export default function TagSettingsModal({
       `「${tagName}」を削除しますか？\nこのタグは全ての日付の記録からも削除されます。`
     );
     if (!ok) return;
+    setErrorMessage("");
     onDeleteTag(tagId);
   };
 
@@ -51,6 +77,14 @@ export default function TagSettingsModal({
       return;
     }
 
+    // 同名はNG：更新しない（入力はそのまま残す）
+    if (isDuplicateName(trimmed, tag.id)) {
+      setErrorMessage("同名のタグ名があります");
+      return;
+    }
+
+    setErrorMessage("");
+
     // 変更があるときだけ保存（無駄な更新を減らす）
     if (trimmed !== tag.name) {
       onRenameTag(tag.id, trimmed);
@@ -62,6 +96,17 @@ export default function TagSettingsModal({
 
   // 閉じる前に、全タグを確定してから閉じる（保険）
   const handleClose = () => {
+    // 重複があれば閉じない（修正を促す）
+    for (const t of tags) {
+      const raw = draftNames[t.id] ?? "";
+      const trimmed = raw.trim();
+      if (!trimmed) continue; // 空は元に戻すのでOK
+      if (isDuplicateName(trimmed, t.id)) {
+        setErrorMessage("同名のタグ名があります");
+        return;
+      }
+    }
+
     tags.forEach((t) => commitName(t));
     onClose();
   };
@@ -81,10 +126,19 @@ export default function TagSettingsModal({
         </div>
 
         <div className="tagSettingsModal__body">
+          {errorMessage && (
+            <div className="alert alert-danger py-2" role="alert">
+              {errorMessage}
+            </div>
+          )}
+
           <div className="tagSettingsModal__sectionTitle">タグ名の変更</div>
           <div className="text-muted" style={{ fontSize: 12, marginTop: 8 }}>
             ※空欄にした場合は確定時に元の名前に戻ります。
+            <br />
+            ※同名のタグ名がある場合は更新できません。
           </div>
+
           {tags.map((t) => (
             <div key={t.id} className="tagSettingsModal__row">
               <input
