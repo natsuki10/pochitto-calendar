@@ -1,78 +1,192 @@
+import { useEffect, useState } from "react";
 import "./TagSettingsModal.css";
-
-const DEFAULT_TAG_NAMES = {
-  tag1: "タグ1",
-  tag2: "タグ2",
-};
 
 export default function TagSettingsModal({
   isOpen,
   onClose,
-  tagNames,
-  setTagNames,
+  tags,
+  onAddTag,
+  onRenameTag,
+  onDeleteTag,
 }) {
+  const [newName, setNewName] = useState("");
+
+  // 編集中の入力値（draft）をローカルで保持
+  // { [tagId]: string }
+  const [draftNames, setDraftNames] = useState({});
+
+  // エラーメッセージ（同名など）
+  const [errorMessage, setErrorMessage] = useState("");
+
+  // モーダルを開いたタイミングで、現在のタグ名を draft に同期
+  useEffect(() => {
+    if (!isOpen) return;
+    const next = {};
+    tags.forEach((t) => {
+      next[t.id] = t.name ?? "";
+    });
+    setDraftNames(next);
+    setErrorMessage("");
+  }, [isOpen, tags]);
+
   if (!isOpen) return null;
 
-  const handleChange = (key, value) => {
-    setTagNames((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
+  // 同名チェック（前後空白無視、完全一致）
+  // selfId を渡した場合は自分自身を除外
+  const isDuplicateName = (name, selfId = null) => {
+    const target = name.trim();
+    if (!target) return false;
+
+    return tags.some((t) => {
+      if (selfId && t.id === selfId) return false;
+      return (t.name ?? "").trim() === target;
+    });
   };
 
-  const handleBlur = (key, value) => {
-    if (value.trim() === "") {
-      setTagNames((prev) => ({
-        ...prev,
-        [key]: DEFAULT_TAG_NAMES[key],
-      }));
+  const handleAdd = () => {
+    const trimmed = newName.trim();
+    if (!trimmed) return;
+
+    if (isDuplicateName(trimmed)) {
+      setErrorMessage("同名のタグ名があります");
+      return;
     }
+
+    setErrorMessage("");
+    onAddTag(trimmed);
+    setNewName("");
+  };
+
+  const handleDelete = (tagId, tagName) => {
+    const ok = window.confirm(
+      `「${tagName}」を削除しますか？\nこのタグは全ての日付の記録からも削除されます。`
+    );
+    if (!ok) return;
+    setErrorMessage("");
+    onDeleteTag(tagId);
+  };
+
+  // 確定処理：空なら「元に戻す」、空でなければ保存
+  const commitName = (tag) => {
+    const raw = draftNames[tag.id] ?? "";
+    const trimmed = raw.trim();
+
+    if (trimmed.length === 0) {
+      // 空はNG：元の名前に戻す
+      setDraftNames((prev) => ({ ...prev, [tag.id]: tag.name ?? "" }));
+      return;
+    }
+
+    // 同名はNG：更新しない（入力はそのまま残す）
+    if (isDuplicateName(trimmed, tag.id)) {
+      setErrorMessage("同名のタグ名があります");
+      return;
+    }
+
+    setErrorMessage("");
+
+    // 変更があるときだけ保存（無駄な更新を減らす）
+    if (trimmed !== tag.name) {
+      onRenameTag(tag.id, trimmed);
+    }
+
+    // 余計な空白を消した状態で draft も揃える
+    setDraftNames((prev) => ({ ...prev, [tag.id]: trimmed }));
+  };
+
+  // 閉じる前に、全タグを確定してから閉じる（保険）
+  const handleClose = () => {
+    // 重複があれば閉じない（修正を促す）
+    for (const t of tags) {
+      const raw = draftNames[t.id] ?? "";
+      const trimmed = raw.trim();
+      if (!trimmed) continue; // 空は元に戻すのでOK
+      if (isDuplicateName(trimmed, t.id)) {
+        setErrorMessage("同名のタグ名があります");
+        return;
+      }
+    }
+
+    tags.forEach((t) => commitName(t));
+    onClose();
   };
 
   return (
-    <div className="tagModal__backdrop" onClick={onClose} role="presentation">
-      <div
-        className="tagModal__dialog"
-        onClick={(e) => e.stopPropagation()}
-        role="dialog"
-        aria-modal="true"
-        aria-label="タグ設定"
-      >
-        <div className="tagModal__header">
-          <div className="tagModal__title">タグ設定</div>
+    <div className="tagSettingsModal">
+      <div className="tagSettingsModal__backdrop" onClick={handleClose} />
+      <div className="tagSettingsModal__content">
+        <div className="tagSettingsModal__header">
+          <div className="tagSettingsModal__title">タグ設定</div>
           <button
-            type="button"
             className="btn btn-outline-secondary btn-sm"
-            onClick={onClose}
-            aria-label="閉じる"
+            onClick={handleClose}
           >
-            ×
+            閉じる
           </button>
         </div>
 
-        <div className="tagModal__body">
-          <div className="mb-2">
-            <label className="form-label">タグ1</label>
-            <input
-              className="form-control form-control-sm"
-              value={tagNames.tag1}
-              onChange={(e) => handleChange("tag1", e.target.value)}
-              onBlur={(e) => handleBlur("tag1", e.target.value)}
-            />
+        <div className="tagSettingsModal__body">
+          {errorMessage && (
+            <div className="alert alert-danger py-2" role="alert">
+              {errorMessage}
+            </div>
+          )}
+
+          <div className="tagSettingsModal__sectionTitle">タグ名の変更</div>
+          <div className="text-muted" style={{ fontSize: 12, marginTop: 8 }}>
+            ※空欄にした場合は確定時に元の名前に戻ります。
+            <br />
+            ※同名のタグ名がある場合は更新できません。
           </div>
 
-          <div className="mb-2">
-            <label className="form-label">タグ2</label>
+          {tags.map((t) => (
+            <div key={t.id} className="tagSettingsModal__row">
+              <input
+                className="form-control form-control-sm"
+                value={draftNames[t.id] ?? ""}
+                onChange={(e) =>
+                  setDraftNames((prev) => ({ ...prev, [t.id]: e.target.value }))
+                }
+                onBlur={() => commitName(t)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.currentTarget.blur(); // blur で確定させる
+                  }
+                  if (e.key === "Escape") {
+                    // Esc で元に戻す（任意）
+                    setDraftNames((prev) => ({
+                      ...prev,
+                      [t.id]: t.name ?? "",
+                    }));
+                    e.currentTarget.blur();
+                  }
+                }}
+              />
+              <button
+                className="btn btn-outline-danger btn-sm"
+                onClick={() => handleDelete(t.id, t.name)}
+              >
+                削除
+              </button>
+            </div>
+          ))}
+
+          <hr />
+
+          <div className="tagSettingsModal__sectionTitle">タグ追加</div>
+          <div className="tagSettingsModal__row">
             <input
               className="form-control form-control-sm"
-              value={tagNames.tag2}
-              onChange={(e) => handleChange("tag2", e.target.value)}
-              onBlur={(e) => handleBlur("tag2", e.target.value)}
+              placeholder="新しいタグ名"
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleAdd();
+              }}
             />
-          </div>
-
-          <div className="text-muted" style={{ fontSize: 12 }}>
-            ※追加・削除は次のIssueで対応
+            <button className="btn btn-primary btn-sm" onClick={handleAdd}>
+              追加
+            </button>
           </div>
         </div>
       </div>

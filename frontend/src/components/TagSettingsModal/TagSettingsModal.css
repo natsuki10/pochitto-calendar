@@ -1,24 +1,35 @@
-.tagModal__backdrop {
+.tagSettingsModal {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.35);
+  z-index: 1050;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 16px;
-  z-index: 1050;
 }
 
-.tagModal__dialog {
+/* 背景 */
+.tagSettingsModal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+}
+
+/* ダイアログ本体 */
+.tagSettingsModal__content {
+  position: relative;
+  z-index: 1;
   width: 100%;
   max-width: 420px;
+  max-height: calc(100vh - 32px);
+  overflow: auto;
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
   padding: 12px;
 }
 
-.tagModal__header {
+.tagSettingsModal__header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -26,15 +37,15 @@
   margin-bottom: 8px;
 }
 
-.tagModal__title {
+.tagSettingsModal__title {
   font-weight: 700;
 }
 
-.tagModal__body {
+.tagSettingsModal__body {
   padding: 4px 0;
 }
 
-.tagModal__footer {
+.tagSettingsModal__footer {
   display: flex;
   justify-content: flex-end;
   margin-top: 8px;
