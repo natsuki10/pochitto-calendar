@@ -5,6 +5,8 @@ import { createCalendar } from "../../util/createCalendar";
 function Calendar({ year, month, selectedDate, setSelectedDate, records }) {
   const calendar = createCalendar(year, month);
   const weekLabels = ["日", "月", "火", "水", "木", "金", "土"];
+
+  // 頑張り度ごとの背景色
   const effortColors = {
     0: "white",
     1: "#eaf6ff",
@@ -44,14 +46,20 @@ function Calendar({ year, month, selectedDate, setSelectedDate, records }) {
       {calendar.map((week, wIndex) => (
         <div key={wIndex} style={{ display: "flex" }}>
           {week.map((d, dIndex) => {
-            const hasDay = d.day != null; // 日付が入っているマスかどうか
+            const hasDay = d.day != null;
             const mm = String(month).padStart(2, "0");
             const dd = String(d.day).padStart(2, "0");
             const dateKey = hasDay ? `${year}-${mm}-${dd}` : null;
 
-            const effort =
-              hasDay && dateKey ? records?.[dateKey]?.effort ?? 0 : 0;
+            const record = hasDay && dateKey ? records?.[dateKey] : null;
+            const effort = record?.effort ?? 0;
+            const tagIds = record?.tagIds ?? [];
 
+            // ●表示条件：タグが1つ以上ある場合のみ
+            const showDot =
+              hasDay && Array.isArray(tagIds) && tagIds.length > 0;
+
+            // 背景色：頑張り度があれば色付け
             let bgColor = "transparent";
             if (hasDay) {
               if (effort > 0) {
@@ -70,6 +78,7 @@ function Calendar({ year, month, selectedDate, setSelectedDate, records }) {
                 bgColor={bgColor}
                 isSelected={hasDay && selectedDate === dateKey}
                 onClick={hasDay ? () => setSelectedDate(dateKey) : undefined}
+                showDot={showDot}
               />
             );
           })}

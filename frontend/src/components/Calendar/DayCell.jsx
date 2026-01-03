@@ -1,5 +1,5 @@
 // src/components/Calendar/DayCell.jsx
-function DayCell({ day, bgColor, isSelected, onClick }) {
+function DayCell({ day, bgColor, isSelected, onClick, showDot }) {
   const style = {
     flex: 1,
     aspectRatio: "1 / 1", //正方形にする
@@ -15,6 +15,7 @@ function DayCell({ day, bgColor, isSelected, onClick }) {
     userSelect: "none", //カーソルを表示させない
     WebkitUserSelect: "none", // iOS対策
     WebkitTapHighlightColor: "transparent", //iOS対策
+    position: "relative", //●配置用
   };
 
   return (
@@ -32,6 +33,22 @@ function DayCell({ day, bgColor, isSelected, onClick }) {
       }}
     >
       {day ?? ""}
+
+      {/* タグがある日だけ右下に ● */}
+      {day && showDot && (
+        <span
+          style={{
+            position: "absolute",
+            right: 6,
+            bottom: 6,
+            fontSize: 9,
+            lineHeight: 1,
+            color: "#bbb",
+          }}
+        >
+          ●
+        </span>
+      )}
     </div>
   );
 }
